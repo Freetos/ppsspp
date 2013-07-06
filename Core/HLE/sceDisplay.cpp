@@ -22,7 +22,6 @@
 // to be dependent on "native", I think. Or maybe should get rid of common
 // and move everything into native...
 #include "base/timeutil.h"
-#include "native/android/app-android.h"
 
 #include "Thread.h"
 #include "../Core/CoreTiming.h"
@@ -345,20 +344,20 @@ void DoFrameTiming(bool &throttle, bool &skipFrame) {
 
 	if (!throttle && !doFrameSkip)
 		return;
-	
+
 	time_update();
-	
+
 	curFrameTime = time_now_d();
 	if (nextFrameTime == 0.0)
 		nextFrameTime = time_now_d() + 1.0 / 60.0;
-	
+
 	if (curFrameTime > nextFrameTime && doFrameSkip) {
 		// Argh, we are falling behind! Let's skip a frame and see if we catch up.
 		skipFrame = true;
 		// INFO_LOG(HLE,"FRAMESKIP %i", numSkippedFrames);
 	}
 
-	
+
 	if (curFrameTime < nextFrameTime && throttle)
 	{
 		// If time gap is huge just jump (somebody unthrottled)
@@ -699,18 +698,9 @@ u32 sceDisplaySetResumeMode(u32 rMode) {
 	return 0;
 }
 
-void sceDisplayGetBrightness(u32 levelAddr,u32 unk1) {
-	ERROR_LOG(HLE,"sceDisplayGetBrightness(%08x,%08x)", levelAddr, unk1);
-	if(Memory::IsValidAddress(levelAddr))
-		Memory::Write_U32(Java_com_henrikrydgard_libnative_NativeRenderer_displayGetBrightness(jniEnvUI, jniClass), levelAddr);
-	if(Memory::IsValidAddress(unk1))
-		Memory::Write_U32(0, unk1);
-}
-
-void sceDisplaySetBrightness(int level,int unk1) {
-	ERROR_LOG(HLE,"sceDisplaySetBrightness(%i,%i)", level, unk1);
-	if(level > 0 && level < 100)
-	Java_com_henrikrydgard_libnative_NativeRenderer_displaySetBrightness(jniEnvUI, jniClass, (jint)level);
+u32 sceDisplayGetBrightness(u32 levelAddr) {
+	ERROR_LOG(HLE,"UNIMPL sceDisplayGetBrightness(%08x)", levelAddr);
+	return 0;
 }
 
 u32 sceDisplaySetHoldMode(u32 hMode) {
@@ -739,8 +729,7 @@ const HLEFunction sceDisplay[] = {
 	{0xA544C486,WrapU_U<sceDisplaySetResumeMode>,"sceDisplaySetResumeMode"},
 	{0xBF79F646,WrapU_U<sceDisplayGetResumeMode>,"sceDisplayGetResumeMode"},
 	{0xB4F378FA,WrapU_V<sceDisplayIsForeground>,"sceDisplayIsForeground"},
-	{0x31C4BAA8,WrapV_UU<sceDisplayGetBrightness>,"sceDisplayGetBrightness"},
-	{0x9E3C6DC6,WrapV_II<sceDisplaySetBrightness>,"sceDisplaySetBrightness"},
+	{0x31C4BAA8,WrapU_U<sceDisplayGetBrightness>,"sceDisplayGetBrightness"},
 	{0x4D4E10EC,WrapU_V<sceDisplayIsVblank>,"sceDisplayIsVblank"},
 	{0x21038913,WrapU_V<sceDisplayIsVsync>,"sceDisplayIsVsync"},
 };
